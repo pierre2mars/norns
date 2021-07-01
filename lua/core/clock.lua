@@ -68,7 +68,7 @@ end
 clock.resume = function(coro_id, ...)
   local coro = clock.threads[coro_id]
 
-  local result, mode, time = coroutine.resume(coro, ...)
+  local result, mode, time, offset = coroutine.resume(coro, ...)
 
   if coroutine.status(coro) == "dead" then
     if result then
@@ -82,7 +82,7 @@ clock.resume = function(coro_id, ...)
       if mode == SLEEP then
         _norns.clock_schedule_sleep(coro_id, time)
       elseif mode == SYNC then
-        _norns.clock_schedule_sync(coro_id, time)
+        _norns.clock_schedule_sync(coro_id, time, offset)
       elseif mode == SUSPEND then
         -- nothing needed for SUSPEND
       end
@@ -198,8 +198,7 @@ function clock.add_params()
     function(x)
       clock.set_source(x)
       if x==4 then
-        crow.input[1].change = function() end
-        crow.input[1].mode("change",2,0.1,"rising")
+        norns.crow.clock_enable()
       end
       norns.state.clock.source = x
       if x==1 then clock.internal.set_tempo(params:get("clock_tempo"))
@@ -241,7 +240,7 @@ function clock.add_params()
   params:add_option("clock_crow_out", "crow out",
       {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
-      if x>1 then crow.output[x-1].action = "pulse(0.05,8)" end
+      --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
       norns.state.clock.crow_out = x
     end)
   params:set_save("clock_crow_out", false)
@@ -266,10 +265,14 @@ function clock.add_params()
 
   -- executes crow sync
   clock.run(function()
+    local v = 0
     while true do
-      clock.sync(1/params:get("clock_crow_out_div"))
+      clock.sync(1/(2*params:get("clock_crow_out_div")))
       local crow_out = params:get("clock_crow_out")-1
-      if crow_out > 0 then crow.output[crow_out]() end
+      if crow_out > 0 then
+        crow.output[crow_out].volts=v
+        v = (v==0) and 10 or 0
+      end
     end
   end)
 
