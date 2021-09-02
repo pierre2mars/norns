@@ -121,7 +121,7 @@ cairo_surface_t *cairo_linuxfb_surface_create() {
     // Open the file for reading and writing
     device->fb_fd = open(fb_name, O_RDWR);
     if (device->fb_fd == -1) {
-        fprintf(stderr, "ERROR (screen) cannot open framebuffer device\n");
+        fprintf(stderr, "ERROR (screen) cannot open framebuffer device: %s\n", fb_name);
         goto handle_allocate_error;
     }
 
@@ -274,11 +274,13 @@ void screen_init(void) {
 
     assert(i == NUM_FONTS);
 
+#if 0 // is this really necessary?
     fprintf(stderr, "fonts: \n");
     for (int i = 0; i < NUM_FONTS; ++i) {
         fprintf(stderr, "  %d: %s\n", i, font_path[i]);
     }
-
+#endif
+    
     char filename[256];
 
     for (int i = 0; i < NUM_FONTS; i++) {

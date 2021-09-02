@@ -3,13 +3,46 @@
 
 local tab = require 'tabutil'
 
+local char_modifier = require 'core/keymap/char_modifier'
+
 keyboard = {}
 
 keyboard.keymap = {}
-keyboard.keymap.us = require 'core/keymap/us' 
+keyboard.keymap.us = require 'core/keymap/us'
+keyboard.keymap.be = require 'core/keymap/be'
+keyboard.keymap.hr = require 'core/keymap/hr'
+keyboard.keymap.cz = require 'core/keymap/cz'
+keyboard.keymap.dk = require 'core/keymap/dk'
+keyboard.keymap.ee = require 'core/keymap/ee'
+keyboard.keymap.fi = require 'core/keymap/fi'
+keyboard.keymap.fr = require 'core/keymap/fr'
+keyboard.keymap.de = require 'core/keymap/de'
+keyboard.keymap.gr = require 'core/keymap/gr'
+keyboard.keymap.hu = require 'core/keymap/hu'
+keyboard.keymap.is = require 'core/keymap/is'
+keyboard.keymap.ie = require 'core/keymap/ie'
+keyboard.keymap.it = require 'core/keymap/it'
+keyboard.keymap.jp = require 'core/keymap/jp'
+keyboard.keymap.kp = require 'core/keymap/kp'
+keyboard.keymap.lv = require 'core/keymap/lv'
+keyboard.keymap.no = require 'core/keymap/no'
+keyboard.keymap.pl = require 'core/keymap/pl'
+keyboard.keymap.pt = require 'core/keymap/pt'
+keyboard.keymap.ro = require 'core/keymap/ro'
+keyboard.keymap.ru = require 'core/keymap/ru'
+keyboard.keymap.rs = require 'core/keymap/rs'
+keyboard.keymap.sk = require 'core/keymap/sk'
+keyboard.keymap.si = require 'core/keymap/si'
+keyboard.keymap.es = require 'core/keymap/es'
+keyboard.keymap.se = require 'core/keymap/se'
 keyboard.selected_map = "us"
 
 local km = keyboard.keymap[keyboard.selected_map]
+
+local function km_uses_altgr()
+  return km[char_modifier.ALTGR] ~= nil
+    or km[char_modifier.SHIFT | char_modifier.ALTGR] ~= nil
+end
 
 --- key states
 keyboard.state = {}
@@ -38,7 +71,9 @@ function keyboard.shift()
   return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT end
 --- return ALT state
 function keyboard.alt()
-  return keyboard.state.LEFTALT or keyboard.state.RIGHTALT end
+  return keyboard.state.LEFTALT or (not km_uses_altgr() and keyboard.state.RIGHTALT) end
+function keyboard.altgr()
+  return km_uses_altgr() and keyboard.state.RIGHTALT end
 --- return CTRL state
 function keyboard.ctrl()
   return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL end
@@ -57,9 +92,13 @@ function keyboard.process(type,code,value)
 
   keyboard.state[c] = value>0
 
+  local c_mods = char_modifier.NONE
+  if keyboard.shift() then c_mods = c_mods | char_modifier.SHIFT end
+  if keyboard.altgr() then c_mods = c_mods | char_modifier.ALTGR end
+
   if value>0 then
-    local a = km[keyboard.shift()][c]
-    if a then 
+    local a = km[c_mods][c]
+    if a then
       --print("char: "..a)
       -- menu keychar
       if _menu.mode then _menu.keychar(a)
@@ -204,4 +243,3 @@ keyboard.state = tab.invert(keyboard.codes)
 for k,_ in pairs(keyboard.state) do keyboard.state[k] = false end
 
 return keyboard
-
