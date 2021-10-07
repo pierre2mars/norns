@@ -4,6 +4,7 @@ function init_norns()
   _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob1-event', index=1})
   _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob2-event', index=2})
   _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob3-event', index=3})
+  _boot.add_io('enc:gpio',     {dev='/dev/input/by-path/platform-soc:knob4-event', index=4})
 end
 
 function init_desktop()

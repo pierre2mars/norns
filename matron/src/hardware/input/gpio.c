@@ -117,11 +117,11 @@ void* enc_gpio_poll(void* data) {
     int rd;
     unsigned int i;
     struct input_event event[64];
-    int dir[3] = {1, 1, 1};
-    clock_t now[3];
-    clock_t prev[3];
+    int dir[4] = {1, 1, 1, 1};
+    clock_t now[4];
+    clock_t prev[4];
     clock_t diff;
-    prev[0] = prev[1] = prev[2] = clock();
+    prev[0] = prev[1] = prev[2] = prev[3] = clock();
 
     while (1) {
         rd = read(priv->base.fd, event, sizeof(struct input_event) * 64);
