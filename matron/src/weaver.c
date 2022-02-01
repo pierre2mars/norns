@@ -79,6 +79,8 @@ static int _grid_all_led(lua_State *l);
 static int _grid_rows(lua_State *l);
 static int _grid_cols(lua_State *l);
 static int _grid_set_rotation(lua_State *l);
+static int _grid_tilt_enable(lua_State *l);
+static int _grid_tilt_disable(lua_State *l);
 
 static int _arc_set_led(lua_State *l);
 static int _arc_all_led(lua_State *l);
@@ -243,6 +245,9 @@ static int _clock_crow_in_div(lua_State *l);
 #if HAVE_ABLETON_LINK
 static int _clock_link_set_tempo(lua_State *l);
 static int _clock_link_set_quantum(lua_State *l);
+static int _clock_link_set_transport_stop(lua_State *l);
+static int _clock_link_set_transport_start(lua_State *l);
+static int _clock_link_set_start_stop_sync(lua_State *l);
 #endif
 static int _clock_set_source(lua_State *l);
 static int _clock_get_time_beats(lua_State *l);
@@ -357,6 +362,8 @@ void w_init(void) {
     lua_register_norns("grid_rows", &_grid_rows);
     lua_register_norns("grid_cols", &_grid_cols);
     lua_register_norns("grid_set_rotation", &_grid_set_rotation);
+    lua_register_norns("grid_tilt_enable", &_grid_tilt_enable);
+    lua_register_norns("grid_tilt_disable", &_grid_tilt_disable);
     lua_register_norns("arc_set_led", &_arc_set_led);
     lua_register_norns("arc_all_led", &_arc_all_led);
     lua_register_norns("monome_refresh", &_monome_refresh);
@@ -458,6 +465,9 @@ void w_init(void) {
 #if HAVE_ABLETON_LINK
     lua_register_norns("clock_link_set_tempo", &_clock_link_set_tempo);
     lua_register_norns("clock_link_set_quantum", &_clock_link_set_quantum);
+    lua_register_norns("clock_link_set_transport_start", &_clock_link_set_transport_start);
+    lua_register_norns("clock_link_set_transport_stop", &_clock_link_set_transport_stop);
+    lua_register_norns("clock_link_set_start_stop_sync", &_clock_link_set_start_stop_sync);
 #endif
     lua_register_norns("clock_set_source", &_clock_set_source);
     lua_register_norns("clock_get_time_beats", &_clock_get_time_beats);
@@ -1277,6 +1287,35 @@ int _grid_set_rotation(lua_State *l) {
 }
 
 /***
+ * grid: enable tilt
+ * @param dev grid device
+ * @param id sensor number
+ */
+int _grid_tilt_enable(lua_State *l) {
+    lua_check_num_args(2);
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    struct dev_monome *md = lua_touserdata(l, 1);
+    int id = (int)luaL_checkinteger(l, 2); // don't convert value!
+    dev_monome_tilt_enable(md, id);
+    lua_settop(l, 0);
+    return 0;
+}
+/***
+ * grid: disable tilt
+ * @param dev grid device
+ * @param id sensor number
+ */
+int _grid_tilt_disable(lua_State *l) {
+    lua_check_num_args(2);
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    struct dev_monome *md = lua_touserdata(l, 1);
+    int id = (int)luaL_checkinteger(l, 2); // don't convert value!
+    dev_monome_tilt_disable(md, id);
+    lua_settop(l, 0);
+    return 0;
+}
+
+/***
  * monome: refresh
  * @function monome_refresh
  * @param dev grid device
@@ -1588,6 +1627,24 @@ int _clock_link_set_quantum(lua_State *l) {
     clock_link_set_quantum(quantum);
     return 0;
 }
+
+
+int _clock_link_set_transport_start(lua_State *l) {
+    clock_link_set_transport_start();
+    return 0;
+}
+
+int _clock_link_set_transport_stop(lua_State *l) {
+    clock_link_set_transport_stop();
+    return 0;
+}
+
+int _clock_link_set_start_stop_sync(lua_State *l) {
+    lua_check_num_args(1);
+    bool enabled = lua_toboolean(l, 1);
+    clock_link_set_start_stop_sync(enabled);
+    return 0;
+}
 #endif
 
 int _clock_set_source(lua_State *l) {
@@ -1628,6 +1685,16 @@ void w_handle_monome_remove(int id) {
 
 void w_handle_grid_key(int id, int x, int y, int state) {
     _call_grid_handler(id, x, y, state > 0);
+}
+
+void w_handle_grid_tilt(int id, int sensor, int x, int y, int z) {
+    _push_norns_func("grid", "tilt");
+    lua_pushinteger(lvm, id + 1); // convert to 1-base
+    lua_pushinteger(lvm, sensor + 1);  // convert to 1-base
+    lua_pushinteger(lvm, x + 1);  // convert to 1-base
+    lua_pushinteger(lvm, y + 1);  // convert to 1-base
+    lua_pushinteger(lvm, z + 1);
+    l_report(lvm, l_docall(lvm, 5, 0));
 }
 
 void w_handle_arc_encoder_delta(int id, int n, int delta) {
@@ -2451,17 +2518,17 @@ int _set_cut_param(lua_State *l) {
 int _set_cut_param_ii(lua_State *l) {
     lua_check_num_args(3);
     const char *s = luaL_checkstring(l, 1);
-    int voice = (int)luaL_checkinteger(l, 2) - 1;
-    float val = (int)luaL_checkinteger(l, 3) - 1;
-    o_set_cut_param_ii((char *)s, voice, val);
+    int a = (int)luaL_checkinteger(l, 2) - 1;
+    int b = (int)luaL_checkinteger(l, 3) - 1;
+    o_set_cut_param_ii((char *)s, a, b);
     return 0;
 }
 
 int _set_cut_param_iif(lua_State *l) {
     lua_check_num_args(4);
     const char *s = luaL_checkstring(l, 1);
-    int a = (int)luaL_checkinteger(l, 2);
-    int b = (int)luaL_checkinteger(l, 3);
+    int a = (int)luaL_checkinteger(l, 2) - 1;
+    int b = (int)luaL_checkinteger(l, 3) - 1;
     float val = (float)luaL_checknumber(l, 4);
     o_set_cut_param_iif((char *)s, a, b, val);
     return 0;
