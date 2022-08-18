@@ -1,12 +1,12 @@
 releases = {
   stable = {
-    version="220321",
-    url="https://github.com/fates-project/norns/releases/download/v2.7.1/fates220321.tgz",
-    sha="https://github.com/fates-project/norns/releases/download/v2.7.1/fates220321.sha256"
+    version="220802",
+    url="https://github.com/fates-project/norns/releases/download/v2.7.2/fates220802.tgz",
+    sha="https://github.com/fates-project/norns/releases/download/v2.7.2/fates220802.sha256"
   },
   beta = {
-    version="220321",
-    url="https://github.com/fates-project/norns/releases/download/v2.7.1/fates220321.tgz",
-    sha="https://github.com/fates-project/norns/releases/download/v2.7.1/fates220321.sha256"
+    version="220802",
+    url="https://github.com/fates-project/norns/releases/download/v2.7.2/fates220802.tgz",
+    sha="https://github.com/fates-project/norns/releases/download/v2.7.2/fates220802.sha256"
   }
 }
