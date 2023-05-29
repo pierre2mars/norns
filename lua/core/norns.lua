@@ -96,7 +96,7 @@ norns.battery_current = 0
 
 -- battery percent handler
 _norns.battery = function(percent, current)
-  if current < 0 and percent < 5 then
+  if current < 0 and percent < 5 and norns.state.battery_warning==1 then
     screen.update = screen.update_low_battery
   elseif current > 0 and norns.battery_current < 0 then
     screen.update = screen.update_default
@@ -256,4 +256,9 @@ end
 --- rerun the current script
 norns.rerun = function()
   norns.script.load(norns.state.script)
+end
+
+-- expand the filesystem after a fresh installation
+norns.expand_filesystem = function()
+  os.execute('sudo raspi-config --expand-rootfs')
 end

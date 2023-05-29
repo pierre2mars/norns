@@ -1,3 +1,34 @@
+# 230526
+
+# norns 2.7.6
+
+- NEW fileselect filters #1678 @dndrks
+- FIX midi clock #1680 @dndrks
+
+
+# 230509
+
+# norns 2.7.5
+
+- FIX screen.export_png reverted, screen.export_screenshot added @tehn
+- FIX battery menu fix @dndrks
+
+
+# 230405
+
+# norns 2.7.4
+
+- NEW png export with scaling and frame #1669 @tehn
+- NEW system settings menu, battery warning #1668 @tehn
+- NEW char/key conversion #1659 @niksilver
+- NEW crow v4 features #1662 @trentgill
+- NEW allow midi send to all channels #1642 @zjb-s
+- NEW user gamepad profiles #1671 @p3r7
+- FIX gamepad support #1624 @p3r7
+- FIX lfo lib improvements #1630 @dndrks
+- FIX various minor fixes (much appreciated)
+
+
 # 221214
 
 # norns 2.7.3
