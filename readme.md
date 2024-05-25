@@ -1,3 +1,5 @@
+this fork purpose is to add support for ssd1325 OLED display
+
 # norns
 _changes. travels. is open to possibilities._
 
