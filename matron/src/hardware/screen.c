@@ -25,7 +25,7 @@
 #include "hardware/screen.h"
 #include "hardware/screen/ssd1322.h"
 
-#define NUM_FONTS 67
+#define NUM_FONTS 68
 #define NUM_OPS 29
 
 static char font_path[NUM_FONTS][32];
@@ -159,7 +159,7 @@ void init_font_faces(void) {
     }
 
     int font_idx = 0;
-    strcpy(font_path[font_idx++], "04B_03__.TTF");
+    strcpy(font_path[font_idx++], "norns.ttf");
     strcpy(font_path[font_idx++], "liquid.ttf");
     strcpy(font_path[font_idx++], "Roboto-Thin.ttf");
     strcpy(font_path[font_idx++], "Roboto-Light.ttf");
@@ -228,6 +228,9 @@ void init_font_faces(void) {
     strcpy(font_path[font_idx++], "bmp/unscii-8.pcf");
     strcpy(font_path[font_idx++], "bmp/unscii-8-tall.pcf");
     strcpy(font_path[font_idx++], "bmp/unscii-8-thin.pcf");
+    //------------------
+    // not specifically bitmap but added to the tail of the font list to avoid breaking changes
+    strcpy(font_path[font_idx++], "Particle.ttf");
 
     assert(font_idx == NUM_FONTS);
 
