@@ -162,6 +162,7 @@ static int _screen_display_image_region(lua_State *l);
 
 // i2c
 static int _gain_hp(lua_State *l);
+static int _adc_rev(lua_State *l);
 
 // osc
 static int _osc_send(lua_State *l);
@@ -169,6 +170,7 @@ static int _osc_send_crone(lua_State *l);
 
 // midi
 static int _midi_send(lua_State *l);
+static int _midi_clock_receive(lua_State *l);
 
 // crow
 static int _crow_send(lua_State *l);
@@ -500,6 +502,7 @@ void w_init(void) {
 
     // analog output control
     lua_register_norns("gain_hp", &_gain_hp);
+    lua_register_norns("adc_rev", &_adc_rev);
 
     // osc
     lua_register_norns("osc_send", &_osc_send);
@@ -507,6 +510,7 @@ void w_init(void) {
 
     // midi
     lua_register_norns("midi_send", &_midi_send);
+    lua_register_norns("midi_clock_receive", &_midi_clock_receive);
 
     // get list of available crone engines
     lua_register_norns("report_engines", &_request_engine_report);
@@ -1458,6 +1462,12 @@ int _gain_hp(lua_State *l) {
     return 0;
 }
 
+int _adc_rev(lua_State *l) {
+    int rev = adc_rev();
+    lua_pushinteger(l, (lua_Integer)rev);
+    return 1;
+}
+
 /***
  * osc: send to arbitrary address
  * @function osc_send
@@ -1659,6 +1669,21 @@ int _midi_send(lua_State *l) {
     dev_midi_send(md, data, nbytes);
     free(data);
 
+    return 0;
+}
+
+/***
+ * midi: clock_receive
+ * @function midi_receive
+ */
+int _midi_clock_receive(lua_State *l) {
+    struct dev_midi *md;
+    lua_check_num_args(2);
+    luaL_checktype(l, 1, LUA_TLIGHTUSERDATA);
+    md = lua_touserdata(l, 1);
+    int enabled = lua_tointeger(l, 2);
+    md->clock_enabled = enabled > 0;
+    //fprintf(stderr, "set clock_enabled to %d on device %p\n", enabled, md);
     return 0;
 }
 
